@@ -1138,12 +1138,22 @@ def _init_infer_auto_device_map(
             "The model weights are not tied. Please use the `tie_weights` method before using the `infer_auto_device` function."
         )
 
-    # Direct submodules and parameters
-    modules_to_treat = (
-        list(model.named_parameters(recurse=False))
-        + list(model.named_children())
-        + list(model.named_buffers(recurse=False))
-    )
+    # Get direct parameters, buffers and children
+    modules_to_treat = []
+    
+    # Add direct parameters and buffers
+    modules_to_treat.extend(list(model.named_parameters(recurse=False)))
+    modules_to_treat.extend(list(model.named_buffers(recurse=False)))
+    
+    # Handle children, with special case for ModuleList
+    for name, child in model.named_children():
+        if isinstance(child, nn.ModuleList):
+            # For ModuleList, add each indexed module separately
+            print(submodule.name)
+            for idx, submodule in enumerate(child):
+                modules_to_treat.append((submodule.name, submodule))
+        else:
+            modules_to_treat.append((name, child))
 
     return (
         devices,
@@ -1388,7 +1398,7 @@ def infer_auto_device_map(
         if len(max_layer_names) == 0:
             print(modules_to_treat)
             max_layer_size, max_layer_names = get_max_layer_size(
-                [(n, m) for n, m in modules_to_treat.append(module) if isinstance(m, torch.nn.Module)],
+                [(n, m) for n, m in modules_to_treat if isinstance(m, torch.nn.Module)],
                 module_sizes,
                 no_split_module_classes,
             )
@@ -1426,7 +1436,7 @@ def infer_auto_device_map(
             current_memory_reserved = max_layer_size
 
         module_size_with_ties, tied_module_names, tied_modules = get_module_size_with_ties(
-            tied_params, module_size, module_sizes, modules_to_treat.append(module)
+            tied_params, module_size, module_sizes, modules_to_treat
         )
 
         # The module and its tied modules fit on the current device.
