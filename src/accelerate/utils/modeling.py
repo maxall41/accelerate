@@ -1366,6 +1366,7 @@ def infer_auto_device_map(
         no_split_module_classes,
         modules_to_treat,
     ) = _init_infer_auto_device_map(model, max_memory, no_split_module_classes, dtype, special_dtypes)
+    print("INIT modules_to_treat ",modules_to_treat)
 
     device_map = OrderedDict()
     current_device = 0
@@ -1375,10 +1376,11 @@ def infer_auto_device_map(
 
     # Initialize maximum largest layer, to know which space to keep in memory
     max_layer_size, max_layer_names = get_max_layer_size(modules_to_treat, module_sizes, no_split_module_classes)
-
+    
     # Ready ? This is going to be a bit messy.
     while len(modules_to_treat) > 0:
         name, module = modules_to_treat.pop(0)
+        print("MODULE",name)
         if verbose:
             print(f"\nTreating module {name}.")
         # Max size in the remaining layers may have changed since we took one, so we maybe update it.
@@ -1386,7 +1388,7 @@ def infer_auto_device_map(
         if len(max_layer_names) == 0:
             print(modules_to_treat)
             max_layer_size, max_layer_names = get_max_layer_size(
-                [(n, m) for n, m in modules_to_treat if isinstance(m, torch.nn.Module)],
+                [(n, m) for n, m in modules_to_treat.append(module) if isinstance(m, torch.nn.Module)],
                 module_sizes,
                 no_split_module_classes,
             )
