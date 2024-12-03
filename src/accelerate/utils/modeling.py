@@ -1147,6 +1147,7 @@ def _init_infer_auto_device_map(
     
     # Handle children, with special case for ModuleList
     for name, child in model.named_children():
+        print("child",child)
         if isinstance(child, nn.ModuleList):
             # For ModuleList, add each indexed module separately
             print(submodule.name)
