@@ -1184,7 +1184,10 @@ def get_module_size_with_ties(
     print(ns)
     for tied_param in tied_params:
         print(tied_param)
-        tied_module_index = [i for i, (n, _) in enumerate(modules_to_treat) if n in tied_param][0]
+        indicies = [i for i, (n, _) in enumerate(modules_to_treat) if n in tied_param]
+        if len(indicies) == 0:
+            continue
+        tied_module_index = indicies[0]
         tied_module_names.append(modules_to_treat[tied_module_index][0])
         tied_modules.append(modules_to_treat[tied_module_index][1])
 
