@@ -1384,6 +1384,7 @@ def infer_auto_device_map(
         # Max size in the remaining layers may have changed since we took one, so we maybe update it.
         max_layer_names = [n for n in max_layer_names if n != name and not n.startswith(name + ".")]
         if len(max_layer_names) == 0:
+            print(modules_to_treat)
             max_layer_size, max_layer_names = get_max_layer_size(
                 [(n, m) for n, m in modules_to_treat if isinstance(m, torch.nn.Module)],
                 module_sizes,
